@@ -6,11 +6,32 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
 
-// Create postgres connection
+// Get database connection string
+// IMPORTANT: Must be an absolute URL for serverless environments (Vercel/Edge)
 const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
 
-// Disable prefetch as it's not supported with Supabase in serverless environments
-const client = postgres(connectionString, { prepare: false });
+// Validate connection string exists
+if (!connectionString) {
+  throw new Error(
+    'Database connection string is missing. Set DATABASE_URL or POSTGRES_URL environment variable.'
+  );
+}
+
+// Validate it's a valid postgres URL
+if (!connectionString.startsWith('postgres://') && !connectionString.startsWith('postgresql://')) {
+  throw new Error(
+    `Invalid database URL format. Expected postgres:// or postgresql://, got: ${connectionString.substring(0, 20)}...`
+  );
+}
+
+// Create postgres client
+// NOTE: Using absolute URL required for Vercel serverless functions
+// prepare: false is required for Supabase connection pooling compatibility
+const client = postgres(connectionString, {
+  prepare: false,
+  // Ensure we're not trying to use relative URLs in serverless
+  fetch: undefined,
+});
 
 // Create database client
 export const db = drizzle(client, { schema });
