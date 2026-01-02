@@ -1,12 +1,13 @@
 /**
  * LLM Provider Abstraction Layer
- * Supports OpenAI and Anthropic with automatic failover
+ * Supports OpenAI, Anthropic, and Google Gemini with automatic failover
  */
 
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-export type LLMProvider = 'openai' | 'anthropic';
+export type LLMProvider = 'openai' | 'anthropic' | 'gemini';
 
 export interface LLMResponse {
   content: string;
@@ -24,6 +25,7 @@ export interface LLMConfig {
 class LLMService {
   private openai: OpenAI | null = null;
   private anthropic: Anthropic | null = null;
+  private gemini: GoogleGenerativeAI | null = null;
   private preferredProvider: LLMProvider;
 
   constructor() {
@@ -32,7 +34,7 @@ class LLMService {
   }
 
   private initialize() {
-    if (this.openai || this.anthropic) return; // Already initialized
+    if (this.openai || this.anthropic || this.gemini) return; // Already initialized
 
     // Initialize clients
     if (process.env.OPENAI_API_KEY) {
@@ -47,8 +49,12 @@ class LLMService {
       });
     }
 
-    if (!this.openai && !this.anthropic) {
-      throw new Error('No LLM provider configured. Set OPENAI_API_KEY or ANTHROPIC_API_KEY.');
+    if (process.env.GOOGLE_API_KEY) {
+      this.gemini = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+    }
+
+    if (!this.openai && !this.anthropic && !this.gemini) {
+      throw new Error('No LLM provider configured. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GOOGLE_API_KEY.');
     }
   }
 
@@ -70,28 +76,42 @@ class LLMService {
         return await this.generateWithOpenAI(prompt, systemPrompt, temperature, maxTokens);
       } else if (this.preferredProvider === 'anthropic' && this.anthropic) {
         return await this.generateWithAnthropic(prompt, systemPrompt, temperature, maxTokens);
+      } else if (this.preferredProvider === 'gemini' && this.gemini) {
+        return await this.generateWithGemini(prompt, systemPrompt, temperature, maxTokens);
       }
 
       // Fallback to alternative provider
-      if (this.preferredProvider === 'openai' && this.anthropic) {
-        console.warn('OpenAI unavailable, falling back to Anthropic');
-        return await this.generateWithAnthropic(prompt, systemPrompt, temperature, maxTokens);
-      } else if (this.preferredProvider === 'anthropic' && this.openai) {
-        console.warn('Anthropic unavailable, falling back to OpenAI');
-        return await this.generateWithOpenAI(prompt, systemPrompt, temperature, maxTokens);
+      if (this.preferredProvider === 'openai' && (this.anthropic || this.gemini)) {
+        console.warn('OpenAI unavailable, falling back');
+        return this.anthropic
+          ? await this.generateWithAnthropic(prompt, systemPrompt, temperature, maxTokens)
+          : await this.generateWithGemini(prompt, systemPrompt, temperature, maxTokens);
+      } else if (this.preferredProvider === 'anthropic' && (this.openai || this.gemini)) {
+        console.warn('Anthropic unavailable, falling back');
+        return this.openai
+          ? await this.generateWithOpenAI(prompt, systemPrompt, temperature, maxTokens)
+          : await this.generateWithGemini(prompt, systemPrompt, temperature, maxTokens);
+      } else if (this.preferredProvider === 'gemini' && (this.openai || this.anthropic)) {
+        console.warn('Gemini unavailable, falling back');
+        return this.openai
+          ? await this.generateWithOpenAI(prompt, systemPrompt, temperature, maxTokens)
+          : await this.generateWithAnthropic(prompt, systemPrompt, temperature, maxTokens);
       }
 
       throw new Error('No LLM provider available');
     } catch (error) {
-      // Try failover
+      // Try failover to any available provider
       console.error(`LLM generation failed with ${this.preferredProvider}:`, error);
 
-      if (this.preferredProvider === 'openai' && this.anthropic) {
-        console.log('Attempting failover to Anthropic...');
-        return await this.generateWithAnthropic(prompt, systemPrompt, temperature, maxTokens);
-      } else if (this.preferredProvider === 'anthropic' && this.openai) {
+      if (this.openai && this.preferredProvider !== 'openai') {
         console.log('Attempting failover to OpenAI...');
         return await this.generateWithOpenAI(prompt, systemPrompt, temperature, maxTokens);
+      } else if (this.anthropic && this.preferredProvider !== 'anthropic') {
+        console.log('Attempting failover to Anthropic...');
+        return await this.generateWithAnthropic(prompt, systemPrompt, temperature, maxTokens);
+      } else if (this.gemini && this.preferredProvider !== 'gemini') {
+        console.log('Attempting failover to Gemini...');
+        return await this.generateWithGemini(prompt, systemPrompt, temperature, maxTokens);
       }
 
       throw error;
@@ -149,6 +169,36 @@ class LLMService {
       tokens: response.usage.input_tokens + response.usage.output_tokens,
       model: response.model,
       provider: 'anthropic',
+    };
+  }
+
+  private async generateWithGemini(
+    prompt: string,
+    systemPrompt: string,
+    temperature: number,
+    maxTokens: number
+  ): Promise<LLMResponse> {
+    if (!this.gemini) throw new Error('Gemini client not initialized');
+
+    const model = this.gemini.getGenerativeModel({
+      model: 'gemini-2.0-flash-exp',
+      generationConfig: {
+        temperature,
+        maxOutputTokens: maxTokens,
+        responseMimeType: 'application/json',
+      },
+    });
+
+    const fullPrompt = `${systemPrompt}\n\n${prompt}`;
+    const result = await model.generateContent(fullPrompt);
+    const response = result.response;
+    const text = response.text();
+
+    return {
+      content: text,
+      tokens: response.usageMetadata?.totalTokenCount || 0,
+      model: 'gemini-2.0-flash-exp',
+      provider: 'gemini',
     };
   }
 
