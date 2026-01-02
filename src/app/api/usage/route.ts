@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { db, users } from '@/db';
 import { eq } from 'drizzle-orm';
 import { getUserUsageStats } from '@/lib/usage';

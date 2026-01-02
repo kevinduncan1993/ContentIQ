@@ -27,13 +27,13 @@ export type Tone = 'educational' | 'conversational' | 'opinionated' | 'authority
  * Get the appropriate prompt for a platform and tone
  */
 export function getPromptForPlatform(platform: Platform, tone: Tone): string {
-  const promptMap = {
-    tiktok: TIKTOK_PROMPTS,
-    twitter: TWITTER_PROMPTS,
-    linkedin: LINKEDIN_PROMPTS,
-    instagram: INSTAGRAM_PROMPTS,
-    threads: THREADS_PROMPTS,
-    email: EMAIL_PROMPTS,
+  const promptMap: Record<Platform, Record<Tone, string>> = {
+    tiktok: TIKTOK_PROMPTS as Record<Tone, string>,
+    twitter: TWITTER_PROMPTS as Record<Tone, string>,
+    linkedin: LINKEDIN_PROMPTS as Record<Tone, string>,
+    instagram: INSTAGRAM_PROMPTS as Record<Tone, string>,
+    threads: THREADS_PROMPTS as Record<Tone, string>,
+    email: EMAIL_PROMPTS as Record<Tone, string>,
   };
 
   return promptMap[platform][tone];

@@ -2,7 +2,7 @@
  * Dashboard - Main generation interface
  */
 
-import { auth } from '@clerk/nextjs';
+import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { GeneratorInterface } from '@/components/GeneratorInterface';
 import { UsageStats } from '@/components/UsageStats';
