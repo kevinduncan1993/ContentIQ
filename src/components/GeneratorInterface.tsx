@@ -98,22 +98,22 @@ export function GeneratorInterface() {
   return (
     <div className="space-y-8">
       {/* Input Section */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Input Your Content</h2>
+      <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+        <h2 className="mb-4 text-lg font-semibold text-white">Input Your Content</h2>
 
         <div className="space-y-4">
           {/* Content Input */}
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="content" className="block text-sm font-medium text-gray-300">
               Long-form Content
             </label>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-400">
               Paste your blog post, podcast transcript, YouTube script, or notes
             </p>
             <textarea
               id="content"
               rows={10}
-              className="mt-2 block w-full rounded-lg border border-gray-300 px-4 py-3 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              className="mt-2 block w-full rounded-lg border border-white/10 bg-gray-800/50 px-4 py-3 text-white placeholder-gray-500 shadow-sm focus:border-purple-500 focus:ring-purple-500"
               placeholder="Paste your content here... (minimum 100 characters)"
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -122,12 +122,12 @@ export function GeneratorInterface() {
             <div className="mt-2 flex items-center justify-between">
               <span
                 className={`text-sm ${
-                  !isValidLength && characterCount > 0 ? 'text-red-600' : 'text-gray-500'
+                  !isValidLength && characterCount > 0 ? 'text-red-400' : 'text-gray-400'
                 }`}
               >
                 {characterCount.toLocaleString()} / 10,000 characters
                 {characterCount > 0 && characterCount < 100 && (
-                  <span className="ml-2 text-red-600">
+                  <span className="ml-2 text-red-400">
                     (minimum 100)
                   </span>
                 )}
@@ -137,10 +137,10 @@ export function GeneratorInterface() {
 
           {/* Platform Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-300">
               Select Platforms
             </label>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-400">
               Choose which platforms you want to create content for
             </p>
             <div className="mt-3">
@@ -154,10 +154,10 @@ export function GeneratorInterface() {
 
           {/* Tone Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-300">
               Creator Tone
             </label>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-400">
               Set the tone and style for your content
             </p>
             <div className="mt-3">
@@ -174,7 +174,7 @@ export function GeneratorInterface() {
             <button
               onClick={handleGenerate}
               disabled={isGenerating || !isValidLength || selectedPlatforms.length === 0}
-              className="inline-flex w-full items-center justify-center rounded-lg bg-primary-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+              className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:shadow-purple-500/50 transition-all disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
               {isGenerating ? (
                 <>
@@ -196,14 +196,14 @@ export function GeneratorInterface() {
       {result && (
         <div className="space-y-6">
           {/* Core Message */}
-          <div className="rounded-lg border border-primary-200 bg-primary-50 p-6">
-            <h3 className="text-sm font-semibold text-primary-900">Core Message</h3>
-            <p className="mt-2 text-lg text-primary-800">{result.analysis.coreMessage}</p>
+          <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-6 backdrop-blur-sm">
+            <h3 className="text-sm font-semibold text-purple-300">Core Message</h3>
+            <p className="mt-2 text-lg text-white">{result.analysis.coreMessage}</p>
             <div className="mt-4">
-              <h4 className="text-sm font-medium text-primary-900">Key Points:</h4>
+              <h4 className="text-sm font-medium text-purple-300">Key Points:</h4>
               <ul className="mt-2 space-y-1">
                 {result.analysis.keyPoints.map((point, idx) => (
-                  <li key={idx} className="text-sm text-primary-700">
+                  <li key={idx} className="text-sm text-purple-200">
                     • {point}
                   </li>
                 ))}
@@ -213,7 +213,7 @@ export function GeneratorInterface() {
 
           {/* Platform Outputs */}
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Generated Content</h2>
+            <h2 className="text-lg font-semibold text-white">Generated Content</h2>
             <div className="grid gap-6 lg:grid-cols-2">
               {result.outputs.map((output) => (
                 <OutputPanel
@@ -227,8 +227,8 @@ export function GeneratorInterface() {
           </div>
 
           {/* Metadata */}
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+            <div className="flex items-center justify-between text-sm text-gray-400">
               <span>
                 Generated in {(result.metadata.generationTimeMs / 1000).toFixed(2)}s
               </span>

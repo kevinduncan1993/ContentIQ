@@ -74,10 +74,10 @@ export function PlatformSelector({ selected, onChange, disabled }: PlatformSelec
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {platforms.map((platform) => (
-          <div key={platform.id} className="animate-pulse rounded-lg border-2 border-gray-200 bg-white p-4">
+          <div key={platform.id} className="animate-pulse rounded-lg border-2 border-white/10 bg-white/5 p-4 backdrop-blur-sm">
             <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-lg bg-gray-200"></div>
-              <div className="h-4 w-20 rounded bg-gray-200"></div>
+              <div className="h-10 w-10 rounded-lg bg-gray-700"></div>
+              <div className="h-4 w-20 rounded bg-gray-700"></div>
             </div>
           </div>
         ))}
@@ -101,37 +101,38 @@ export function PlatformSelector({ selected, onChange, disabled }: PlatformSelec
             className={cn(
               'relative flex items-center space-x-3 rounded-lg border-2 p-4 text-left transition-all',
               isLocked
-                ? 'border-gray-200 bg-gray-50 cursor-pointer hover:border-primary-300 hover:bg-primary-50'
+                ? 'border-white/10 bg-white/5 cursor-pointer hover:border-purple-500/30 hover:bg-purple-500/10'
                 : isSelected
-                ? 'border-primary-600 bg-primary-50 shadow-sm'
-                : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50',
+                ? 'border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/20'
+                : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10',
               disabled && 'cursor-not-allowed opacity-50'
             )}
           >
             <div className={cn(
               'flex h-10 w-10 items-center justify-center rounded-lg',
-              isLocked ? 'bg-gray-200 text-gray-400' : platform.color
+              isLocked ? 'bg-gray-700/50 text-gray-500' : 'bg-gray-800/50',
+              !isLocked && platform.color
             )}>
               <Icon className="h-5 w-5" />
             </div>
             <div className="flex-1">
               <p className={cn(
                 'text-sm font-medium',
-                isLocked ? 'text-gray-500' : isSelected ? 'text-primary-900' : 'text-gray-900'
+                isLocked ? 'text-gray-500' : isSelected ? 'text-white' : 'text-gray-300'
               )}>
                 {platform.name}
               </p>
               {isLocked && (
-                <p className="text-xs text-gray-400 mt-0.5">Pro only</p>
+                <p className="text-xs text-gray-500 mt-0.5">Pro only</p>
               )}
             </div>
             {isLocked && (
-              <div className="h-5 w-5 rounded-full bg-gray-300 flex items-center justify-center">
-                <Lock className="h-3 w-3 text-gray-600" />
+              <div className="h-5 w-5 rounded-full bg-gray-700 flex items-center justify-center">
+                <Lock className="h-3 w-3 text-gray-500" />
               </div>
             )}
             {!isLocked && isSelected && (
-              <div className="h-5 w-5 rounded-full bg-primary-600 flex items-center justify-center">
+              <div className="h-5 w-5 rounded-full bg-purple-600 flex items-center justify-center">
                 <svg className="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 12 12">
                   <path d="M3.707 5.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 00-1.414-1.414L5 6.586 3.707 5.293z" />
                 </svg>
