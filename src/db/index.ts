@@ -29,8 +29,6 @@ if (!connectionString.startsWith('postgres://') && !connectionString.startsWith(
 // prepare: false is required for Supabase connection pooling compatibility
 const client = postgres(connectionString, {
   prepare: false,
-  // Ensure we're not trying to use relative URLs in serverless
-  fetch: undefined,
 });
 
 // Create database client
