@@ -1,48 +1,67 @@
 /**
  * Rate Limiting using Upstash Redis
+ * OPTIONAL - Works without Redis (disables rate limiting)
  */
 
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
-// Initialize Redis client
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+// Check if Redis is configured
+const hasRedis =
+  process.env.UPSTASH_REDIS_REST_URL &&
+  process.env.UPSTASH_REDIS_REST_TOKEN;
+
+// Initialize Redis client only if configured
+// Prevents "/pipeline" URL errors when env vars are missing
+const redis = hasRedis
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    })
+  : null;
 
 /**
  * Per-user rate limit: 10 requests per minute
+ * Only active if Redis is configured
  */
-export const userRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(10, '1 m'),
-  prefix: 'ratelimit:user',
-  analytics: true,
-});
+export const userRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(10, '1 m'),
+      prefix: 'ratelimit:user',
+      analytics: true,
+    })
+  : null;
 
 /**
  * Per-IP rate limit: 20 requests per minute
+ * Only active if Redis is configured
  */
-export const ipRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(20, '1 m'),
-  prefix: 'ratelimit:ip',
-  analytics: true,
-});
+export const ipRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(20, '1 m'),
+      prefix: 'ratelimit:ip',
+      analytics: true,
+    })
+  : null;
 
 /**
  * Global rate limit: 1000 requests per minute
+ * Only active if Redis is configured
  */
-export const globalRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(1000, '1 m'),
-  prefix: 'ratelimit:global',
-  analytics: true,
-});
+export const globalRateLimit = redis
+  ? new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(1000, '1 m'),
+      prefix: 'ratelimit:global',
+      analytics: true,
+    })
+  : null;
 
 /**
  * Check if user can make a request
+ * Returns allowed=true if Redis is not configured (no rate limiting)
  */
 export async function checkRateLimit(userId: string, ip: string): Promise<{
   allowed: boolean;
@@ -50,6 +69,17 @@ export async function checkRateLimit(userId: string, ip: string): Promise<{
   remaining: number;
   reset: number;
 }> {
+  // If Redis is not configured, allow all requests
+  if (!redis || !userRateLimit || !ipRateLimit || !globalRateLimit) {
+    console.warn('[Rate Limit] Redis not configured - rate limiting disabled');
+    return {
+      allowed: true,
+      limit: 999999,
+      remaining: 999999,
+      reset: Date.now() + 60000,
+    };
+  }
+
   // Check user rate limit
   const userResult = await userRateLimit.limit(userId);
   if (!userResult.success) {
