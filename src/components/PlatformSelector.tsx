@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Video, Twitter, Linkedin, Instagram, MessageCircle, Mail, Lock } from 'lucide-react';
+import { Video, Twitter, Linkedin, Instagram, MessageCircle, Mail, Facebook, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Platform } from '@/prompts';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,7 @@ const platforms = [
   { id: 'instagram' as Platform, name: 'Instagram', icon: Instagram, color: 'bg-purple-100 text-purple-600' },
   { id: 'threads' as Platform, name: 'Threads', icon: MessageCircle, color: 'bg-gray-100 text-gray-600' },
   { id: 'email' as Platform, name: 'Email', icon: Mail, color: 'bg-green-100 text-green-600' },
+  { id: 'facebook' as Platform, name: 'Facebook', icon: Facebook, color: 'bg-blue-100 text-blue-700' },
 ];
 
 interface PlatformSelectorProps {

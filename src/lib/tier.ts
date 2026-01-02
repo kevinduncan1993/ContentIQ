@@ -5,7 +5,7 @@
 import { db, users } from '@/db';
 import { eq } from 'drizzle-orm';
 
-export type Platform = 'tiktok' | 'twitter' | 'linkedin' | 'instagram' | 'threads' | 'email';
+export type Platform = 'tiktok' | 'twitter' | 'linkedin' | 'instagram' | 'threads' | 'email' | 'facebook';
 
 /**
  * Platform access by tier
@@ -14,8 +14,8 @@ export type Platform = 'tiktok' | 'twitter' | 'linkedin' | 'instagram' | 'thread
  */
 const TIER_PLATFORMS: Record<'free' | 'pro' | 'business', Platform[]> = {
   free: ['threads', 'linkedin'],
-  pro: ['tiktok', 'twitter', 'linkedin', 'instagram', 'threads', 'email'],
-  business: ['tiktok', 'twitter', 'linkedin', 'instagram', 'threads', 'email'],
+  pro: ['tiktok', 'twitter', 'linkedin', 'instagram', 'threads', 'email', 'facebook'],
+  business: ['tiktok', 'twitter', 'linkedin', 'instagram', 'threads', 'email', 'facebook'],
 };
 
 /**
@@ -140,7 +140,7 @@ export function getLockedPlatforms(
     return [];
   }
 
-  const allPlatforms: Platform[] = ['tiktok', 'twitter', 'linkedin', 'instagram', 'threads', 'email'];
+  const allPlatforms: Platform[] = ['tiktok', 'twitter', 'linkedin', 'instagram', 'threads', 'email', 'facebook'];
   const allowedPlatforms = TIER_PLATFORMS.free;
 
   return allPlatforms.filter((p) => !allowedPlatforms.includes(p));

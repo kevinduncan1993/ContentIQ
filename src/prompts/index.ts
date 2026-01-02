@@ -11,6 +11,7 @@ import { LINKEDIN_PROMPTS } from './platform-linkedin';
 import { INSTAGRAM_PROMPTS } from './platform-instagram';
 import { THREADS_PROMPTS } from './platform-threads';
 import { EMAIL_PROMPTS } from './platform-email';
+import { FACEBOOK_PROMPTS } from './platform-facebook';
 
 export { CONTENT_ANALYZER_PROMPT, type ContentAnalysis } from './content-analyzer';
 export { TIKTOK_PROMPTS, type TikTokOutput } from './platform-tiktok';
@@ -19,11 +20,12 @@ export { LINKEDIN_PROMPTS, type LinkedInOutput } from './platform-linkedin';
 export { INSTAGRAM_PROMPTS, type InstagramOutput } from './platform-instagram';
 export { THREADS_PROMPTS, type ThreadsOutput } from './platform-threads';
 export { EMAIL_PROMPTS, type EmailOutput } from './platform-email';
+export { FACEBOOK_PROMPTS, type FacebookOutput } from './platform-facebook';
 
 /**
  * Platform type definition
  */
-export type Platform = 'tiktok' | 'twitter' | 'linkedin' | 'instagram' | 'threads' | 'email';
+export type Platform = 'tiktok' | 'twitter' | 'linkedin' | 'instagram' | 'threads' | 'email' | 'facebook';
 
 /**
  * Tone type definition
@@ -41,6 +43,7 @@ export function getPromptForPlatform(platform: Platform, tone: Tone): string {
     instagram: INSTAGRAM_PROMPTS as Record<Tone, string>,
     threads: THREADS_PROMPTS as Record<Tone, string>,
     email: EMAIL_PROMPTS as Record<Tone, string>,
+    facebook: FACEBOOK_PROMPTS as Record<Tone, string>,
   };
 
   return promptMap[platform][tone];
@@ -85,6 +88,7 @@ export const PLATFORM_NAMES: Record<Platform, string> = {
   instagram: 'Instagram',
   threads: 'Threads',
   email: 'Email Newsletter',
+  facebook: 'Facebook',
 };
 
 /**

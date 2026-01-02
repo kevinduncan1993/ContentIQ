@@ -21,6 +21,7 @@ interface Generation {
   outputInstagram: any;
   outputThreads: any;
   outputEmail: any;
+  outputFacebook: any;
 }
 
 function renderPlatformContent(platform: Platform, content: any) {
@@ -156,6 +157,61 @@ function renderPlatformContent(platform: Platform, content: any) {
         </div>
       );
 
+    case 'facebook':
+      return (
+        <div className="space-y-3">
+          <div>
+            <strong className="text-purple-400 text-xs">Hook:</strong>
+            <p className="font-medium text-white text-sm mt-1">{content.hook}</p>
+          </div>
+          <div>
+            <p className="whitespace-pre-wrap text-gray-300 text-sm">{content.post}</p>
+          </div>
+          {content.keyTips && (
+            <div>
+              <strong className="text-purple-400 text-xs">Key Tips:</strong>
+              <ul className="mt-2 space-y-1">
+                {content.keyTips.map((tip: string, idx: number) => (
+                  <li key={idx} className="text-xs text-gray-400">
+                    {tip}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {content.keyInsights && (
+            <div>
+              <strong className="text-purple-400 text-xs">Key Insights:</strong>
+              <ul className="mt-2 space-y-1">
+                {content.keyInsights.map((insight: string, idx: number) => (
+                  <li key={idx} className="text-xs text-gray-400">
+                    {insight}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {content.mainArguments && (
+            <div>
+              <strong className="text-purple-400 text-xs">Main Arguments:</strong>
+              <ul className="mt-2 space-y-1">
+                {content.mainArguments.map((arg: string, idx: number) => (
+                  <li key={idx} className="text-xs text-gray-400">
+                    {arg}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {content.hashtags && content.hashtags.length > 0 && (
+            <div>
+              <strong className="text-purple-400 text-xs">Hashtags:</strong>
+              <p className="text-xs text-gray-400 mt-1">{content.hashtags.join(' ')}</p>
+            </div>
+          )}
+        </div>
+      );
+
     default:
       return <pre className="text-xs">{JSON.stringify(content, null, 2)}</pre>;
   }
@@ -182,6 +238,9 @@ function formatContentForCopy(platform: Platform, content: any): string {
 
     case 'email':
       return `Subject: ${content.subjectLine}\n\nPreview: ${content.previewText}\n\n${content.emailBody}`;
+
+    case 'facebook':
+      return `${content.post}\n\n${content.hashtags && content.hashtags.length > 0 ? content.hashtags.join(' ') : ''}`;
 
     default:
       return JSON.stringify(content, null, 2);
@@ -262,6 +321,7 @@ export function HistoryList() {
           { platform: 'Instagram', data: gen.outputInstagram },
           { platform: 'Threads', data: gen.outputThreads },
           { platform: 'Email', data: gen.outputEmail },
+          { platform: 'Facebook', data: gen.outputFacebook },
         ].filter((p) => gen.selectedPlatforms.includes(p.platform.toLowerCase()));
 
         return (

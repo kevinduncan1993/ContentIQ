@@ -208,6 +208,61 @@ function renderContent(platform: Platform, content: any) {
         </div>
       );
 
+    case 'facebook':
+      return (
+        <div className="space-y-4">
+          <div>
+            <strong className="text-purple-400">Hook:</strong>
+            <p className="font-medium text-white">{content.hook}</p>
+          </div>
+          <div>
+            <p className="whitespace-pre-wrap text-gray-300">{content.post}</p>
+          </div>
+          {content.keyTips && (
+            <div>
+              <strong className="text-purple-400">Key Tips:</strong>
+              <ul className="mt-2 space-y-1">
+                {content.keyTips.map((tip: string, idx: number) => (
+                  <li key={idx} className="text-sm text-gray-400">
+                    {tip}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {content.keyInsights && (
+            <div>
+              <strong className="text-purple-400">Key Insights:</strong>
+              <ul className="mt-2 space-y-1">
+                {content.keyInsights.map((insight: string, idx: number) => (
+                  <li key={idx} className="text-sm text-gray-400">
+                    {insight}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {content.mainArguments && (
+            <div>
+              <strong className="text-purple-400">Main Arguments:</strong>
+              <ul className="mt-2 space-y-1">
+                {content.mainArguments.map((arg: string, idx: number) => (
+                  <li key={idx} className="text-sm text-gray-400">
+                    {arg}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {content.hashtags && content.hashtags.length > 0 && (
+            <div>
+              <strong className="text-purple-400">Hashtags:</strong>
+              <p className="text-sm text-gray-400">{content.hashtags.join(' ')}</p>
+            </div>
+          )}
+        </div>
+      );
+
     default:
       return <pre className="text-xs">{JSON.stringify(content, null, 2)}</pre>;
   }
@@ -234,6 +289,9 @@ function formatContentForCopy(platform: Platform, content: any): string {
 
     case 'email':
       return `Subject: ${content.subjectLine}\n\nPreview: ${content.previewText}\n\n${content.emailBody}`;
+
+    case 'facebook':
+      return `${content.post}\n\n${content.hashtags && content.hashtags.length > 0 ? content.hashtags.join(' ') : ''}`;
 
     default:
       return JSON.stringify(content, null, 2);

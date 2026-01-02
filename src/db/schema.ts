@@ -103,6 +103,7 @@ export const generations = pgTable(
     outputLinkedin: jsonb('output_linkedin'),
     outputInstagram: jsonb('output_instagram'),
     outputEmail: jsonb('output_email'),
+    outputFacebook: jsonb('output_facebook'),
 
     // Metadata
     generationTimeMs: integer('generation_time_ms'),

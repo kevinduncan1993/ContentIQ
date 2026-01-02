@@ -21,7 +21,7 @@ import type { Platform, Tone } from '@/prompts';
 // Request validation schema
 const generateSchema = z.object({
   content: z.string().min(100).max(10000),
-  platforms: z.array(z.enum(['tiktok', 'twitter', 'linkedin', 'instagram', 'threads', 'email'])).min(1).max(6),
+  platforms: z.array(z.enum(['tiktok', 'twitter', 'linkedin', 'instagram', 'threads', 'email', 'facebook'])).min(1).max(7),
   tone: z.enum(['educational', 'conversational', 'opinionated', 'authority']),
 });
 
