@@ -27,6 +27,13 @@ class LLMService {
   private preferredProvider: LLMProvider;
 
   constructor() {
+    // Set preferred provider
+    this.preferredProvider = (process.env.LLM_PROVIDER as LLMProvider) || 'openai';
+  }
+
+  private initialize() {
+    if (this.openai || this.anthropic) return; // Already initialized
+
     // Initialize clients
     if (process.env.OPENAI_API_KEY) {
       this.openai = new OpenAI({
@@ -40,9 +47,6 @@ class LLMService {
       });
     }
 
-    // Set preferred provider
-    this.preferredProvider = (process.env.LLM_PROVIDER as LLMProvider) || 'openai';
-
     if (!this.openai && !this.anthropic) {
       throw new Error('No LLM provider configured. Set OPENAI_API_KEY or ANTHROPIC_API_KEY.');
     }
@@ -52,6 +56,8 @@ class LLMService {
    * Generate completion using preferred provider with automatic failover
    */
   async generate(prompt: string, config: LLMConfig = {}): Promise<LLMResponse> {
+    this.initialize(); // Lazy initialize on first use
+
     const {
       temperature = 0.7,
       maxTokens = 2000,
