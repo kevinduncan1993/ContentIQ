@@ -88,9 +88,11 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleUserCreated(event: WebhookEvent) {
+  if (event.type !== 'user.created') return;
+
   const { id, email_addresses, first_name, last_name } = event.data;
 
-  const email = email_addresses[0]?.email_address;
+  const email = email_addresses?.[0]?.email_address;
   const fullName = [first_name, last_name].filter(Boolean).join(' ');
 
   if (!email) {
@@ -122,9 +124,11 @@ async function handleUserCreated(event: WebhookEvent) {
 }
 
 async function handleUserUpdated(event: WebhookEvent) {
+  if (event.type !== 'user.updated') return;
+
   const { id, email_addresses, first_name, last_name } = event.data;
 
-  const email = email_addresses[0]?.email_address;
+  const email = email_addresses?.[0]?.email_address;
   const fullName = [first_name, last_name].filter(Boolean).join(' ');
 
   if (!email) return;
@@ -143,6 +147,8 @@ async function handleUserUpdated(event: WebhookEvent) {
 }
 
 async function handleUserDeleted(event: WebhookEvent) {
+  if (event.type !== 'user.deleted') return;
+
   const { id } = event.data;
 
   // Soft delete user (keep data for compliance/billing)
