@@ -5,6 +5,13 @@
  * Import this file to access any platform's prompts.
  */
 
+import { TIKTOK_PROMPTS } from './platform-tiktok';
+import { TWITTER_PROMPTS } from './platform-twitter';
+import { LINKEDIN_PROMPTS } from './platform-linkedin';
+import { INSTAGRAM_PROMPTS } from './platform-instagram';
+import { THREADS_PROMPTS } from './platform-threads';
+import { EMAIL_PROMPTS } from './platform-email';
+
 export { CONTENT_ANALYZER_PROMPT, type ContentAnalysis } from './content-analyzer';
 export { TIKTOK_PROMPTS, type TikTokOutput } from './platform-tiktok';
 export { TWITTER_PROMPTS, type TwitterOutput } from './platform-twitter';

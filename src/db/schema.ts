@@ -25,6 +25,9 @@ export const subscriptionStatusEnum = pgEnum('subscription_status', [
   'past_due',
   'trialing',
   'incomplete',
+  'incomplete_expired',
+  'unpaid',
+  'paused',
 ]);
 export const generationStatusEnum = pgEnum('generation_status', [
   'pending',
