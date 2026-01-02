@@ -13,6 +13,7 @@ import { eq } from 'drizzle-orm';
 import { promptEngine } from '@/lib/prompt-engine';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { checkUserQuota, incrementUsage } from '@/lib/usage';
+import { validatePlatformAccess } from '@/lib/tier';
 import { hashContent, getClientIp } from '@/lib/utils';
 import { z } from 'zod';
 import type { Platform, Tone } from '@/prompts';
@@ -93,7 +94,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Sanitize and validate input
+    // 5. Check platform access based on tier and trial
+    const platformAccess = validatePlatformAccess(
+      platforms as Platform[],
+      user.subscriptionTier,
+      user.createdAt
+    );
+
+    if (!platformAccess.valid) {
+      return NextResponse.json(
+        {
+          error: 'Platform access denied',
+          message: platformAccess.message,
+          invalidPlatforms: platformAccess.invalidPlatforms,
+          tier: user.subscriptionTier,
+        },
+        { status: 403 }
+      );
+    }
+
+    // 6. Sanitize and validate input
     const sanitizedContent = promptEngine.sanitizeInput(content);
     const inputValidation = promptEngine.validateInput({
       content: sanitizedContent,
@@ -108,7 +128,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 6. Create generation record
+    // 7. Create generation record
     const contentHash = hashContent(sanitizedContent);
     const [generationRecord] = await db
       .insert(generations)
@@ -122,7 +142,7 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    // 7. Generate content
+    // 8. Generate content
     try {
       const result = await promptEngine.generate({
         content: sanitizedContent,
@@ -130,7 +150,7 @@ export async function POST(request: NextRequest) {
         tone: tone as Tone,
       });
 
-      // 8. Update generation record with results
+      // 9. Update generation record with results
       const platformOutputs: Record<string, any> = {};
       result.outputs.forEach((output) => {
         const key = `output${output.platform.charAt(0).toUpperCase() + output.platform.slice(1)}`;
@@ -156,10 +176,10 @@ export async function POST(request: NextRequest) {
         })
         .where(eq(generations.id, generationRecord.id));
 
-      // 9. Increment usage counter
+      // 10. Increment usage counter
       await incrementUsage(user.id, platforms.length);
 
-      // 10. Log usage
+      // 11. Log usage
       await db.insert(usageLogs).values({
         userId: user.id,
         generationId: generationRecord.id,
@@ -172,7 +192,7 @@ export async function POST(request: NextRequest) {
         ipAddress: clientIp,
       });
 
-      // 11. Return success response
+      // 12. Return success response
       return NextResponse.json({
         success: true,
         generationId: generationRecord.id,
