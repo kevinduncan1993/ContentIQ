@@ -150,6 +150,7 @@ async function handleUserDeleted(event: WebhookEvent) {
   if (event.type !== 'user.deleted') return;
 
   const { id } = event.data;
+  if (!id) return;
 
   // Soft delete user (keep data for compliance/billing)
   await db
