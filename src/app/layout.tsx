@@ -7,8 +7,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'RepurposeFlow - AI Content Repurposing for Creators',
-  description: 'Transform long-form content into platform-specific short-form content in seconds',
+  title: 'ContentIQ - Intelligent Content Optimization Platform',
+  description: 'Transform long-form content into platform-optimized posts for TikTok, Twitter, LinkedIn, Instagram, Threads, and Email in seconds',
 };
 
 export default function RootLayout({

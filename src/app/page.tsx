@@ -41,8 +41,8 @@ export default function HomePage() {
     },
     {
       icon: Sparkles,
-      title: 'AI-Powered Adaptation',
-      description: 'Our AI understands platform-specific best practices and adapts your content accordingly.',
+      title: 'Intelligent Content Adaptation',
+      description: 'Advanced algorithms analyze platform-specific best practices and adapt your content to maximize engagement on each channel.',
     },
     {
       icon: TrendingUp,
@@ -189,7 +189,7 @@ export default function HomePage() {
               How ContentIQ Saves You Time
             </h2>
             <p className="mt-4 text-xl text-gray-400">
-              AI-powered content adaptation that understands each platform
+              Intelligent content optimization engineered for platform-specific performance
             </p>
           </div>
 
