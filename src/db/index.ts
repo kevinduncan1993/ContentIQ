@@ -1,35 +1,37 @@
 /**
  * Database connection and client
+ *
+ * WHY @neondatabase/serverless:
+ * - Designed for serverless/edge environments (Vercel, Cloudflare Workers)
+ * - Works with Supabase connection pooling
+ * - Avoids "/pipeline" URL errors in production
+ * - Uses WebSocket connections which work in serverless
  */
 
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import ws from 'ws';
 import * as schema from './schema';
 
-// Get database connection string with fallback to prevent build errors
+// Configure WebSocket for Node.js environment
+// Required for serverless compatibility
+if (typeof WebSocket === 'undefined') {
+  neonConfig.webSocketConstructor = ws;
+}
+
+// Get database connection string
+// MUST be absolute postgres:// URL - relative URLs fail in serverless
 const connectionString =
   process.env.DATABASE_URL ||
   process.env.POSTGRES_URL ||
-  'postgresql://placeholder:placeholder@localhost:5432/placeholder';
+  '';
 
-// Only validate in runtime (not during build)
-let client: ReturnType<typeof postgres>;
+// Create connection pool
+// Uses WebSocket protocol - works in Vercel/Edge runtimes
+const pool = new Pool({ connectionString });
 
-try {
-  // Create postgres client with connection string
-  // prepare: false is required for Supabase/Vercel Postgres compatibility
-  client = postgres(connectionString, {
-    prepare: false,
-    max: 1, // Limit connections in serverless
-  });
-} catch (error) {
-  console.error('[DB] Failed to create postgres client:', error);
-  // Create a dummy client to prevent build errors
-  client = postgres('postgresql://localhost:5432/postgres', { prepare: false });
-}
-
-// Create database client
-export const db = drizzle(client, { schema });
+// Create database client with Drizzle ORM
+export const db = drizzle(pool, { schema });
 
 // Export schema for use in queries
 export * from './schema';
