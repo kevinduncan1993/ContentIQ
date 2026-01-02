@@ -14,7 +14,7 @@ export function Header() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">RepurposeFlow</span>
+            <span className="text-xl font-bold text-gray-900">ContentIQ</span>
           </Link>
 
           {/* Navigation */}
