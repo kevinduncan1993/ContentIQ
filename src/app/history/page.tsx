@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { Header } from '@/components/Header';
+import { HistoryList } from '@/components/HistoryList';
 
 export default function HistoryPage() {
   const { userId } = auth();
@@ -18,8 +19,12 @@ export default function HistoryPage() {
       <Header />
 
       <main className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-white">Generation History</h1>
-        <p className="mt-4 text-gray-400">Your content generation history will appear here.</p>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white">Generation History</h1>
+          <p className="mt-2 text-gray-400">View and reuse your past content generations</p>
+        </div>
+
+        <HistoryList />
       </main>
     </div>
   );

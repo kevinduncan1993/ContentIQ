@@ -1,0 +1,190 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Clock, Copy, CheckCircle2, AlertCircle } from 'lucide-react';
+import { formatRelativeTime } from '@/lib/utils';
+import { toast } from 'sonner';
+
+interface Generation {
+  id: string;
+  inputContent: string;
+  selectedPlatforms: string[];
+  selectedTone: string;
+  coreMessage: string | null;
+  keyPoints: any;
+  status: string;
+  createdAt: Date;
+  outputTiktok: any;
+  outputTwitter: any;
+  outputLinkedin: any;
+  outputInstagram: any;
+  outputThreads: any;
+  outputEmail: any;
+}
+
+export function HistoryList() {
+  const [generations, setGenerations] = useState<Generation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  async function fetchHistory() {
+    try {
+      const response = await fetch('/api/history');
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+      setGenerations(data.generations);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Failed to load history');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${label} copied to clipboard`);
+    } catch (error) {
+      toast.error('Failed to copy');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+            <div className="h-4 w-48 rounded bg-gray-700"></div>
+            <div className="mt-4 h-4 w-full rounded bg-gray-700"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (generations.length === 0) {
+    return (
+      <div className="rounded-xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur-sm">
+        <Clock className="mx-auto h-12 w-12 text-gray-500" />
+        <h3 className="mt-4 text-lg font-medium text-white">No generations yet</h3>
+        <p className="mt-2 text-sm text-gray-400">
+          Your content generations will appear here once you create them
+        </p>
+        <a
+          href="/dashboard"
+          className="mt-6 inline-flex items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 transition-colors"
+        >
+          Create Content
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {generations.map((gen) => {
+        const isExpanded = expandedId === gen.id;
+        const platformOutputs = [
+          { platform: 'TikTok', data: gen.outputTiktok },
+          { platform: 'Twitter', data: gen.outputTwitter },
+          { platform: 'LinkedIn', data: gen.outputLinkedin },
+          { platform: 'Instagram', data: gen.outputInstagram },
+          { platform: 'Threads', data: gen.outputThreads },
+          { platform: 'Email', data: gen.outputEmail },
+        ].filter((p) => gen.selectedPlatforms.includes(p.platform.toLowerCase()));
+
+        return (
+          <div
+            key={gen.id}
+            className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm"
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2">
+                  {gen.status === 'completed' ? (
+                    <CheckCircle2 className="h-5 w-5 text-green-400" />
+                  ) : gen.status === 'failed' ? (
+                    <AlertCircle className="h-5 w-5 text-red-400" />
+                  ) : (
+                    <Clock className="h-5 w-5 text-yellow-400" />
+                  )}
+                  <span className="text-sm font-medium capitalize text-gray-400">
+                    {gen.selectedTone} • {gen.selectedPlatforms.length} platform
+                    {gen.selectedPlatforms.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+                <p className="mt-2 text-white line-clamp-2">{gen.coreMessage || 'Processing...'}</p>
+                <p className="mt-1 text-sm text-gray-400">
+                  {formatRelativeTime(new Date(gen.createdAt))}
+                </p>
+              </div>
+              <button
+                onClick={() => setExpandedId(isExpanded ? null : gen.id)}
+                className="ml-4 text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                {isExpanded ? 'Hide' : 'View'}
+              </button>
+            </div>
+
+            {/* Expanded Content */}
+            {isExpanded && gen.status === 'completed' && (
+              <div className="mt-6 space-y-4 border-t border-white/10 pt-6">
+                {/* Original Content */}
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-white">Original Content</h4>
+                    <button
+                      onClick={() => copyToClipboard(gen.inputContent, 'Original content')}
+                      className="text-gray-400 hover:text-white transition-colors"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-400 whitespace-pre-wrap">
+                    {gen.inputContent.substring(0, 300)}
+                    {gen.inputContent.length > 300 && '...'}
+                  </p>
+                </div>
+
+                {/* Platform Outputs */}
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {platformOutputs.map((output) => (
+                    <div
+                      key={output.platform}
+                      className="rounded-lg border border-white/10 bg-white/5 p-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold text-white">{output.platform}</h4>
+                        {output.data && (
+                          <button
+                            onClick={() => copyToClipboard(JSON.stringify(output.data, null, 2), output.platform)}
+                            className="text-gray-400 hover:text-white transition-colors"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="mt-2 text-sm text-gray-400">
+                        {output.data ? (
+                          <pre className="whitespace-pre-wrap">{JSON.stringify(output.data, null, 2)}</pre>
+                        ) : (
+                          <span className="text-gray-500">Not generated</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}

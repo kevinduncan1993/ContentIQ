@@ -30,12 +30,12 @@ export function OutputPanel({ platform, content, error }: OutputPanelProps) {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+      <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-6 backdrop-blur-sm">
         <div className="flex items-start space-x-3">
-          <AlertCircle className="h-5 w-5 text-red-600" />
+          <AlertCircle className="h-5 w-5 text-red-400" />
           <div>
-            <h3 className="font-semibold text-red-900">{PLATFORM_NAMES[platform]}</h3>
-            <p className="mt-1 text-sm text-red-700">{error}</p>
+            <h3 className="font-semibold text-red-300">{PLATFORM_NAMES[platform]}</h3>
+            <p className="mt-1 text-sm text-red-200">{error}</p>
           </div>
         </div>
       </div>
@@ -43,17 +43,17 @@ export function OutputPanel({ platform, content, error }: OutputPanelProps) {
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">{PLATFORM_NAMES[platform]}</h3>
+        <h3 className="text-lg font-semibold text-white">{PLATFORM_NAMES[platform]}</h3>
         <button
           onClick={handleCopy}
-          className="inline-flex items-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          className="inline-flex items-center rounded-lg border border-purple-500/30 bg-purple-500/10 px-3 py-2 text-sm font-medium text-purple-300 hover:bg-purple-500/20 transition-all"
         >
           {copied ? (
             <>
-              <Check className="mr-2 h-4 w-4 text-green-600" />
+              <Check className="mr-2 h-4 w-4 text-green-400" />
               Copied!
             </>
           ) : (
@@ -66,7 +66,7 @@ export function OutputPanel({ platform, content, error }: OutputPanelProps) {
       </div>
 
       {/* Content */}
-      <div className="prose prose-sm max-w-none">
+      <div className="prose prose-sm prose-invert max-w-none">
         {renderContent(platform, content)}
       </div>
     </div>
@@ -79,23 +79,23 @@ function renderContent(platform: Platform, content: any) {
       return (
         <div className="space-y-4">
           <div>
-            <strong className="text-primary-600">Hook:</strong>
-            <p>{content.hook}</p>
+            <strong className="text-purple-400">Hook:</strong>
+            <p className="text-gray-300">{content.hook}</p>
           </div>
           {content.promise && (
             <div>
-              <strong className="text-primary-600">Promise:</strong>
-              <p>{content.promise}</p>
+              <strong className="text-purple-400">Promise:</strong>
+              <p className="text-gray-300">{content.promise}</p>
             </div>
           )}
           <div>
-            <strong className="text-primary-600">Talking Points:</strong>
+            <strong className="text-purple-400">Talking Points:</strong>
             <ul className="mt-2 space-y-3">
               {content.talkingPoints?.map((point: any, idx: number) => (
                 <li key={idx}>
-                  <strong>{point.point}</strong>
+                  <strong className="text-white">{point.point}</strong>
                   <br />
-                  <span className="text-sm text-gray-600">Visual: {point.visual}</span>
+                  <span className="text-sm text-gray-400">Visual: {point.visual}</span>
                   <br />
                   <span className="text-xs text-gray-500">{point.duration}</span>
                 </li>
@@ -103,13 +103,13 @@ function renderContent(platform: Platform, content: any) {
             </ul>
           </div>
           <div>
-            <strong className="text-primary-600">CTA:</strong>
-            <p>{content.cta}</p>
+            <strong className="text-purple-400">CTA:</strong>
+            <p className="text-gray-300">{content.cta}</p>
           </div>
           {content.hashtags && (
             <div>
-              <strong className="text-primary-600">Hashtags:</strong>
-              <p className="text-sm text-gray-600">{content.hashtags.join(' ')}</p>
+              <strong className="text-purple-400">Hashtags:</strong>
+              <p className="text-sm text-gray-400">{content.hashtags.join(' ')}</p>
             </div>
           )}
         </div>
@@ -119,14 +119,14 @@ function renderContent(platform: Platform, content: any) {
       return (
         <div className="space-y-2">
           {content.thread?.map((tweet: string, idx: number) => (
-            <div key={idx} className="rounded-lg bg-gray-50 p-3">
-              <p className="whitespace-pre-wrap">{tweet}</p>
+            <div key={idx} className="rounded-lg bg-white/5 p-3 border border-white/10">
+              <p className="whitespace-pre-wrap text-gray-300">{tweet}</p>
             </div>
           ))}
           {content.hashtags && (
             <div className="mt-4">
-              <strong className="text-primary-600">Hashtags:</strong>
-              <p className="text-sm text-gray-600">{content.hashtags.join(' ')}</p>
+              <strong className="text-purple-400">Hashtags:</strong>
+              <p className="text-sm text-gray-400">{content.hashtags.join(' ')}</p>
             </div>
           )}
         </div>
@@ -136,16 +136,16 @@ function renderContent(platform: Platform, content: any) {
       return (
         <div className="space-y-4">
           <div>
-            <strong className="text-primary-600">Hook:</strong>
-            <p className="font-medium">{content.hook}</p>
+            <strong className="text-purple-400">Hook:</strong>
+            <p className="font-medium text-white">{content.hook}</p>
           </div>
           <div>
-            <p className="whitespace-pre-wrap">{content.post}</p>
+            <p className="whitespace-pre-wrap text-gray-300">{content.post}</p>
           </div>
           {content.hashtags && (
             <div>
-              <strong className="text-primary-600">Hashtags:</strong>
-              <p className="text-sm text-gray-600">{content.hashtags.join(' ')}</p>
+              <strong className="text-purple-400">Hashtags:</strong>
+              <p className="text-sm text-gray-400">{content.hashtags.join(' ')}</p>
             </div>
           )}
         </div>
@@ -155,15 +155,15 @@ function renderContent(platform: Platform, content: any) {
       return (
         <div className="space-y-4">
           <div>
-            <strong className="text-primary-600">Caption:</strong>
-            <p className="whitespace-pre-wrap">{content.caption}</p>
+            <strong className="text-purple-400">Caption:</strong>
+            <p className="whitespace-pre-wrap text-gray-300">{content.caption}</p>
           </div>
           {content.slideIdeas && (
             <div>
-              <strong className="text-primary-600">Carousel Ideas:</strong>
+              <strong className="text-purple-400">Carousel Ideas:</strong>
               <ul className="mt-2 space-y-1">
                 {content.slideIdeas.map((slide: string, idx: number) => (
-                  <li key={idx} className="text-sm text-gray-700">
+                  <li key={idx} className="text-sm text-gray-400">
                     {slide}
                   </li>
                 ))}
@@ -172,8 +172,8 @@ function renderContent(platform: Platform, content: any) {
           )}
           {content.hashtags && (
             <div>
-              <strong className="text-primary-600">Hashtags:</strong>
-              <p className="text-sm text-gray-600">{content.hashtags.join(' ')}</p>
+              <strong className="text-purple-400">Hashtags:</strong>
+              <p className="text-sm text-gray-400">{content.hashtags.join(' ')}</p>
             </div>
           )}
         </div>
@@ -183,8 +183,8 @@ function renderContent(platform: Platform, content: any) {
       return (
         <div className="space-y-2">
           {content.posts?.map((post: string, idx: number) => (
-            <div key={idx} className="rounded-lg bg-gray-50 p-3">
-              <p className="whitespace-pre-wrap">{post}</p>
+            <div key={idx} className="rounded-lg bg-white/5 p-3 border border-white/10">
+              <p className="whitespace-pre-wrap text-gray-300">{post}</p>
             </div>
           ))}
         </div>
@@ -194,16 +194,16 @@ function renderContent(platform: Platform, content: any) {
       return (
         <div className="space-y-4">
           <div>
-            <strong className="text-primary-600">Subject Line:</strong>
-            <p className="font-medium">{content.subjectLine}</p>
+            <strong className="text-purple-400">Subject Line:</strong>
+            <p className="font-medium text-white">{content.subjectLine}</p>
           </div>
           <div>
-            <strong className="text-primary-600">Preview Text:</strong>
-            <p className="text-sm text-gray-600">{content.previewText}</p>
+            <strong className="text-purple-400">Preview Text:</strong>
+            <p className="text-sm text-gray-400">{content.previewText}</p>
           </div>
           <div>
-            <strong className="text-primary-600">Email Body:</strong>
-            <p className="whitespace-pre-wrap">{content.emailBody}</p>
+            <strong className="text-purple-400">Email Body:</strong>
+            <p className="whitespace-pre-wrap text-gray-300">{content.emailBody}</p>
           </div>
         </div>
       );

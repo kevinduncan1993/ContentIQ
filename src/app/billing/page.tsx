@@ -4,6 +4,7 @@ import { db, users } from '@/db';
 import { eq } from 'drizzle-orm';
 import { getUserTierStatus } from '@/lib/tier';
 import { Check, Sparkles, Zap, Clock } from 'lucide-react';
+import { ManageSubscriptionButton } from '@/components/ManageSubscriptionButton';
 
 export default async function BillingPage() {
   const { userId: clerkUserId } = auth();
@@ -153,11 +154,14 @@ export default async function BillingPage() {
               ))}
             </ul>
 
-            <div className="mt-8">
+            <div className="mt-8 space-y-3">
               {tierStatus.tier === 'pro' ? (
-                <div className="rounded-lg bg-purple-600/30 px-4 py-3 text-center text-sm font-medium text-purple-200">
-                  Current Plan
-                </div>
+                <>
+                  <div className="rounded-lg bg-purple-600/30 px-4 py-3 text-center text-sm font-medium text-purple-200">
+                    Current Plan
+                  </div>
+                  <ManageSubscriptionButton />
+                </>
               ) : (
                 <a
                   href="https://buy.stripe.com/28EeVcdfTaUmaai61oco005"

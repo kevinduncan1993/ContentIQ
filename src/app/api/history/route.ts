@@ -1,25 +1,24 @@
 /**
  * GET /api/history
- * Get user's generation history
+ * Get user's content generation history
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@clerk/nextjs/server';
-import { db, generations, users } from '@/db';
-import { eq, desc, and, gte } from 'drizzle-orm';
+import { db, users, generations } from '@/db';
+import { eq, desc } from 'drizzle-orm';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    // Authentication
     const { userId: clerkUserId } = auth();
+
     if (!clerkUserId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user
     const user = await db.query.users.findFirst({
       where: eq(users.clerkUserId, clerkUserId),
     });
@@ -28,42 +27,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get query params
-    const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
-
-    // Fetch generations (last 30 days, completed only)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
+    // Fetch user's generations, newest first
     const userGenerations = await db.query.generations.findMany({
-      where: and(
-        eq(generations.userId, user.id),
-        eq(generations.status, 'completed'),
-        gte(generations.createdAt, thirtyDaysAgo)
-      ),
+      where: eq(generations.userId, user.id),
       orderBy: [desc(generations.createdAt)],
-      limit,
-      offset,
-      columns: {
-        id: true,
-        inputContent: true,
-        selectedPlatforms: true,
-        selectedTone: true,
-        coreMessage: true,
-        detectedTopic: true,
-        createdAt: true,
-        generationTimeMs: true,
-      },
+      limit: 50, // Limit to last 50 generations
     });
 
-    return NextResponse.json({
-      generations: userGenerations,
-      total: userGenerations.length,
-      limit,
-      offset,
-    });
+    return NextResponse.json({ generations: userGenerations });
   } catch (error) {
     console.error('[API] History error:', error);
     return NextResponse.json(
