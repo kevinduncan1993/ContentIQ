@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Clock, Copy, CheckCircle2, AlertCircle } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/utils';
 import { toast } from 'sonner';
+import type { Platform } from '@/prompts';
 
 interface Generation {
   id: string;
@@ -20,6 +21,171 @@ interface Generation {
   outputInstagram: any;
   outputThreads: any;
   outputEmail: any;
+}
+
+function renderPlatformContent(platform: Platform, content: any) {
+  switch (platform) {
+    case 'tiktok':
+      return (
+        <div className="space-y-3">
+          <div>
+            <strong className="text-purple-400 text-xs">Hook:</strong>
+            <p className="text-gray-300 text-sm mt-1">{content.hook}</p>
+          </div>
+          {content.promise && (
+            <div>
+              <strong className="text-purple-400 text-xs">Promise:</strong>
+              <p className="text-gray-300 text-sm mt-1">{content.promise}</p>
+            </div>
+          )}
+          <div>
+            <strong className="text-purple-400 text-xs">Talking Points:</strong>
+            <ul className="mt-2 space-y-2">
+              {content.talkingPoints?.map((point: any, idx: number) => (
+                <li key={idx} className="text-xs">
+                  <strong className="text-white">{point.point}</strong>
+                  <br />
+                  <span className="text-gray-400">Visual: {point.visual}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <strong className="text-purple-400 text-xs">CTA:</strong>
+            <p className="text-gray-300 text-sm mt-1">{content.cta}</p>
+          </div>
+          {content.hashtags && (
+            <div>
+              <strong className="text-purple-400 text-xs">Hashtags:</strong>
+              <p className="text-xs text-gray-400 mt-1">{content.hashtags.join(' ')}</p>
+            </div>
+          )}
+        </div>
+      );
+
+    case 'twitter':
+      return (
+        <div className="space-y-2">
+          {content.thread?.map((tweet: string, idx: number) => (
+            <div key={idx} className="rounded-lg bg-white/5 p-2 border border-white/10">
+              <p className="whitespace-pre-wrap text-gray-300 text-sm">{tweet}</p>
+            </div>
+          ))}
+          {content.hashtags && (
+            <div className="mt-3">
+              <strong className="text-purple-400 text-xs">Hashtags:</strong>
+              <p className="text-xs text-gray-400 mt-1">{content.hashtags.join(' ')}</p>
+            </div>
+          )}
+        </div>
+      );
+
+    case 'linkedin':
+      return (
+        <div className="space-y-3">
+          <div>
+            <strong className="text-purple-400 text-xs">Hook:</strong>
+            <p className="font-medium text-white text-sm mt-1">{content.hook}</p>
+          </div>
+          <div>
+            <p className="whitespace-pre-wrap text-gray-300 text-sm">{content.post}</p>
+          </div>
+          {content.hashtags && (
+            <div>
+              <strong className="text-purple-400 text-xs">Hashtags:</strong>
+              <p className="text-xs text-gray-400 mt-1">{content.hashtags.join(' ')}</p>
+            </div>
+          )}
+        </div>
+      );
+
+    case 'instagram':
+      return (
+        <div className="space-y-3">
+          <div>
+            <strong className="text-purple-400 text-xs">Caption:</strong>
+            <p className="whitespace-pre-wrap text-gray-300 text-sm mt-1">{content.caption}</p>
+          </div>
+          {content.slideIdeas && (
+            <div>
+              <strong className="text-purple-400 text-xs">Carousel Ideas:</strong>
+              <ul className="mt-2 space-y-1">
+                {content.slideIdeas.map((slide: string, idx: number) => (
+                  <li key={idx} className="text-xs text-gray-400">
+                    {slide}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {content.hashtags && (
+            <div>
+              <strong className="text-purple-400 text-xs">Hashtags:</strong>
+              <p className="text-xs text-gray-400 mt-1">{content.hashtags.join(' ')}</p>
+            </div>
+          )}
+        </div>
+      );
+
+    case 'threads':
+      return (
+        <div className="space-y-2">
+          {content.posts?.map((post: string, idx: number) => (
+            <div key={idx} className="rounded-lg bg-white/5 p-2 border border-white/10">
+              <p className="whitespace-pre-wrap text-gray-300 text-sm">{post}</p>
+            </div>
+          ))}
+        </div>
+      );
+
+    case 'email':
+      return (
+        <div className="space-y-3">
+          <div>
+            <strong className="text-purple-400 text-xs">Subject Line:</strong>
+            <p className="font-medium text-white text-sm mt-1">{content.subjectLine}</p>
+          </div>
+          <div>
+            <strong className="text-purple-400 text-xs">Preview Text:</strong>
+            <p className="text-xs text-gray-400 mt-1">{content.previewText}</p>
+          </div>
+          <div>
+            <strong className="text-purple-400 text-xs">Email Body:</strong>
+            <p className="whitespace-pre-wrap text-gray-300 text-sm mt-1">{content.emailBody}</p>
+          </div>
+        </div>
+      );
+
+    default:
+      return <pre className="text-xs">{JSON.stringify(content, null, 2)}</pre>;
+  }
+}
+
+function formatContentForCopy(platform: Platform, content: any): string {
+  switch (platform) {
+    case 'tiktok':
+      return `${content.hook}\n\n${content.talkingPoints
+        ?.map((p: any) => `• ${p.point}\n  Visual: ${p.visual}`)
+        .join('\n\n')}\n\n${content.cta}\n\n${content.hashtags?.join(' ') || ''}`;
+
+    case 'twitter':
+      return content.thread?.join('\n\n') || '';
+
+    case 'linkedin':
+      return `${content.post}\n\n${content.hashtags?.join(' ') || ''}`;
+
+    case 'instagram':
+      return `${content.caption}\n\n${content.hashtags?.join(' ') || ''}`;
+
+    case 'threads':
+      return content.posts?.join('\n\n') || '';
+
+    case 'email':
+      return `Subject: ${content.subjectLine}\n\nPreview: ${content.previewText}\n\n${content.emailBody}`;
+
+    default:
+      return JSON.stringify(content, null, 2);
+  }
 }
 
 export function HistoryList() {
@@ -163,18 +329,18 @@ export function HistoryList() {
                         <h4 className="text-sm font-semibold text-white">{output.platform}</h4>
                         {output.data && (
                           <button
-                            onClick={() => copyToClipboard(JSON.stringify(output.data, null, 2), output.platform)}
+                            onClick={() => copyToClipboard(formatContentForCopy(output.platform.toLowerCase() as Platform, output.data), output.platform)}
                             className="text-gray-400 hover:text-white transition-colors"
                           >
                             <Copy className="h-4 w-4" />
                           </button>
                         )}
                       </div>
-                      <div className="mt-2 text-sm text-gray-400">
+                      <div className="mt-2">
                         {output.data ? (
-                          <pre className="whitespace-pre-wrap">{JSON.stringify(output.data, null, 2)}</pre>
+                          renderPlatformContent(output.platform.toLowerCase() as Platform, output.data)
                         ) : (
-                          <span className="text-gray-500">Not generated</span>
+                          <span className="text-sm text-gray-500">Not generated</span>
                         )}
                       </div>
                     </div>
