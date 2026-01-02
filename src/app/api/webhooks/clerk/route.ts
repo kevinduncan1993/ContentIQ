@@ -4,6 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
+
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { db, users, webhookEvents } from '@/db';

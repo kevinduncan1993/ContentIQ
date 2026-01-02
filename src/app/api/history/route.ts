@@ -4,6 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
+
 import { auth } from '@clerk/nextjs/server';
 import { db, generations, users } from '@/db';
 import { eq, desc, and, gte } from 'drizzle-orm';
